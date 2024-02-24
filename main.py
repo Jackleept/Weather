@@ -177,7 +177,6 @@ def plot_wind_s_d(data):
 
     show(p)
 
-update_executed()
 if __name__ == '__main__':
      extract_load(get_links())
      df = pd.read_sql_query('''SELECT * FROM weather''', conn)
