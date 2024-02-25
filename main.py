@@ -26,11 +26,9 @@ def update_executed():
         f.write(str(int(time.time())))
 
 
-def get_links():
-    
-    last_execution_date = last_executed()
+def get_links(load_from_date):
 
-    if last_execution_date // 86400 ==  time.time() // 86400:
+    if load_from_date // 86400 ==  time.time() // 86400:
         return []
 
     links = []
@@ -177,10 +175,18 @@ def plot_wind_s_d(data):
 
     show(p)
 
+
+def load_old_data():
+     df.read_sql_query('''SELECT * FROM weather''', conn)
+     first_date = df['date_time'][0]
+     old_date = first_date - 3600 * 950
+     return old_date
+
+
 if __name__ == '__main__':
-     extract_load(get_links())
+     extract_load(get_links(load_old_data()))
      df = pd.read_sql_query('''SELECT * FROM weather''', conn)
      plot_temp_feels_like(df)
      plot_temp_pressure(df)
      plot_wind_s_d(df)
-     update_executed()
+     #update_executed()
