@@ -26,9 +26,9 @@ def update_executed():
         f.write(str(int(time.time())))
 
 
-def get_links(load_from_date):
+def get_links(last_execution_date):
 
-    if load_from_date // 86400 ==  time.time() // 86400:
+    if last_execution_date // 86400 ==  time.time() // 86400:
         return []
 
     links = []
@@ -44,6 +44,33 @@ def get_links(load_from_date):
     nearest_hour_old = last_execution_date - last_execution_date % 3600
 
     for x in range(nearest_hour_old+3600, nearest_hour, 3600):
+        build_link(x)
+    
+    return links
+
+def past_date():
+     df = pd.read_sql_query('''SELECT * FROM weather''', conn)
+     first_date = df['date_time'][0]
+     past_date = first_date - 3600 * 950
+     return past_date
+
+
+def get_links_past():
+
+    links = []
+
+    def build_link(date):
+        lat = '51.5072'
+        lon = '0.1276'
+        from key import key
+        link = f'https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={date}&appid={key}&units=metric'
+        links.append(link)
+
+    df = pd.read_sql_query('''SELECT date_time FROM weather''', conn)
+    first_date = df['date_time'][0]
+    past_date = first_date - 3600 * 2
+
+    for x in range(past_date, first_date, 3600):
         build_link(x)
     
     return links
@@ -176,17 +203,11 @@ def plot_wind_s_d(data):
     show(p)
 
 
-def load_old_data():
-     df.read_sql_query('''SELECT * FROM weather''', conn)
-     first_date = df['date_time'][0]
-     old_date = first_date - 3600 * 950
-     return old_date
-
-
 if __name__ == '__main__':
-     extract_load(get_links(load_old_data()))
+     #extract_load(get_links_past())
      df = pd.read_sql_query('''SELECT * FROM weather''', conn)
-     plot_temp_feels_like(df)
-     plot_temp_pressure(df)
-     plot_wind_s_d(df)
+     print(df.sort_values(by=['date_time']).head(5))
+     #plot_temp_feels_like(df)
+     #plot_temp_pressure(df)
+     #plot_wind_s_d(df)
      #update_executed()
