@@ -43,19 +43,13 @@ def get_links(last_execution_date):
     nearest_hour = int(time.time() - time.time() % 3600)
     nearest_hour_old = last_execution_date - last_execution_date % 3600
 
-    for x in range(nearest_hour_old+3600, nearest_hour, 3600):
+    for x in range(nearest_hour_old, nearest_hour, 3600):
         build_link(x)
     
     return links
 
-def past_date():
-     df = pd.read_sql_query('''SELECT * FROM weather''', conn)
-     first_date = df['date_time'][0]
-     past_date = first_date - 3600 * 950
-     return past_date
 
-
-def get_links_past():
+def get_links_past(x):
 
     links = []
 
@@ -67,8 +61,8 @@ def get_links_past():
         links.append(link)
 
     df = pd.read_sql_query('''SELECT date_time FROM weather''', conn)
-    first_date = df['date_time'][0]
-    past_date = first_date - 3600 * 2
+    first_date = df['date_time'].min()
+    past_date = first_date - 3600 * x
 
     for x in range(past_date, first_date, 3600):
         build_link(x)
@@ -195,19 +189,35 @@ def plot_wind_s_d(data):
     source = ColumnDataSource(data)
 
     p = figure(x_axis_label=r'\[\text{ Wind Direction }\]',
-                y_axis_label=r'\[\text{ Wind Speed }ms^{-1}\]')
+               y_axis_label=r'\[\text{ Wind Speed }ms^{-1}\]')
 
     p.circle(x='wind_deg',
-            y='wind_speed', source=source, fill_color='blue')
+             y='wind_speed', source=source, fill_color='blue')
 
     show(p)
 
+def plot_temp_humidity(data):
+ 
+    source = ColumnDataSource(data)
 
-if __name__ == '__main__':
-     #extract_load(get_links_past())
+    p = figure(x_axis_label=r'\[\text{ Temperature }^\circ C\]',
+               y_axis_label=r'\[\text{ Humidity }\%\]')
+
+    p.circle(x='temp',
+             y='humidity', source=source, fill_color='blue')
+
+    #p.circle(x='feels_like',
+             #y='humidity', source=source, fill_color='green')
+    
+    show(p)
+
+if __name__ == 'main':
+     extract_load(get_links_past(900))
+     extract_load(get_links(last_executed()))
      df = pd.read_sql_query('''SELECT * FROM weather''', conn)
-     print(df.sort_values(by=['date_time']).head(5))
-     #plot_temp_feels_like(df)
-     #plot_temp_pressure(df)
-     #plot_wind_s_d(df)
-     #update_executed()
+     df = df.sort_values('date_time').reset_index()
+     plot_temp_feels_like(df)
+     plot_temp_pressure(df)
+     plot_wind_s_d(df)
+     plot_temp_humidity(df)
+     update_executed()
