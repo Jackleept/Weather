@@ -36,7 +36,7 @@ def get_links(last_execution_date):
     def build_link(date):
         lat = '51.5072'
         lon = '0.1276'
-        from key import key
+        from python.key import key
         link = f'https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={date}&appid={key}&units=metric'
         links.append(link)
 
@@ -56,7 +56,7 @@ def get_links_past(x):
     def build_link(date):
         lat = '51.5072'
         lon = '0.1276'
-        from key import key
+        from python.key import key
         link = f'https://api.openweathermap.org/data/3.0/onecall/timemachine?lat={lat}&lon={lon}&dt={date}&appid={key}&units=metric'
         links.append(link)
 
